@@ -24,3 +24,9 @@ INSTALL
 Installation instructions can be found `here <https://github.com/mushorg/glastopf/tree/master/docs/source/installation>`_.
 
 It is highly recommended to customize the default attack surface to avoid trivial detection of the honeypot.
+
+DOCKER RUN
+----------
+docker build --rm --tag glastopf . 
+
+docker run --detach --publish 80:80 --volume myhoneypot1:/opt/myhoneypot glastopf
