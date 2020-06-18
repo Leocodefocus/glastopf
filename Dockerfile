@@ -1,4 +1,4 @@
-FROM ubuntu:14.04.1
+FROM ubuntu:18.04
 MAINTAINER Lukas Rist <glaslos@gmail.com>
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -37,30 +37,36 @@ RUN apt-get update && apt-get install -y \
         python2.7 \
         python2.7-dev \
         software-properties-common \
+	dirmngr \
+	apt-transport-https \
+	lsb-release \
+	ca-certificates \
 	&& \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN locale-gen en_US.UTF-8 && export LANG=en_US.UTF-8 && LC_ALL=en_US.UTF-8 add-apt-repository ppa:ondrej/php && apt-get update
+#RUN locale-gen en_US.UTF-8
+RUN export LANG=en_US.UTF-8
+RUN LC_ALL=en_US.UTF-8 add-apt-repository -y ppa:ondrej/php && apt-get update
 
 RUN apt-get install -y --force-yes  php7.0 php7.0-dev
 
 ## Install and configure the PHP sandbox
-RUN git clone https://github.com/mushorg/BFR.git /opt/BFR && \
-    cd /opt/BFR && \
-    phpize7.0 && \
-    ./configure --enable-bfr && \
-    make && \
-    make install && \
-    echo "zend_extension = "$(find /usr -name bfr.so) >> /etc/php/7.0/cli/php.ini && \
-    rm -rf /opt/BFR /tmp/* /var/tmp/*
+RUN rm -rf /opt/BFR
+#RUN mkdir /opt/BFR
+RUN git clone https://github.com/mushorg/BFR.git /opt/BFR
+RUN cd /opt/BFR && phpize7.0 && ./configure --enable-bfr \
+	&& make && make install
+RUN echo "zend_extension = "$(find /usr -name bfr.so) >> /etc/php/7.0/cli/php.ini
+RUN rm -rf /opt/BFR /tmp/* /var/tmp/*
 
 
 ## Install glastopf from latest sources
-RUN git clone https://github.com/mushorg/glastopf.git /opt/glastopf && \
-    cd /opt/glastopf && \
-    python setup.py install && \
-    rm -rf /opt/glastopf /tmp/* /var/tmp/*
+RUN pip install git+https://github.com/mushorg/glastopf
+#RUN rm -rf /opt/glastopf
+#RUN mkdir /opt/glastopf
+#RUN git clone https://github.com/mushorg/glastopf.git /opt/glastopf && cd /opt/glastopf && python setup.py install
+#RUN rm -rf /opt/glastopf /tmp/* /var/tmp/*
 
 ## Configuration
 RUN mkdir /opt/myhoneypot
